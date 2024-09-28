@@ -73,13 +73,13 @@ export function SelectAdress({ onSelect }: { onSelect: (value: Address) => void 
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className="w-[600px] justify-between truncate"
+                    className="w-full justify-between truncate"
                 >
                     {value || "Search for an address..."}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[600px] p-0">
+            <PopoverContent className="w-full p-0">
                 <Command>
                     <CommandInput
                         placeholder="Search for an address..."

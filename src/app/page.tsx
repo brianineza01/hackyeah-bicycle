@@ -1,5 +1,7 @@
+"use client"
 
-import { CyclistComponent } from "../components/feature/cyclist-component";
+import BottomNavigation from "@/components/bottomNavigation";
+import { CyclistComponent } from "@/components/feature/cyclist-component";
 
 export default function Home() {
   return (
@@ -7,7 +9,9 @@ export default function Home() {
       <main>
         <CyclistComponent />
       </main>
-      <footer></footer>
+      <footer>
+        <BottomNavigation/>
+      </footer>
     </div>
   );
 }
