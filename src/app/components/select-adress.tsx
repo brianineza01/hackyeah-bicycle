@@ -20,13 +20,13 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 
-interface Address {
+export interface Address {
     display_name: string
     place_id: number
     boundingbox: string[]
 }
 
-export function SelectAdress() {
+export function SelectAdress({ onSelect }: { onSelect: (value: Address) => void }) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("")
     const [addresses, setAddresses] = React.useState<Address[]>([])
@@ -107,6 +107,8 @@ export function SelectAdress() {
                                     key={address.place_id}
                                     value={address.display_name}
                                     onSelect={(currentValue) => {
+                                        onSelect(address)
+
                                         setValue(currentValue === value ? "" : currentValue)
                                         setInputValue("")
                                         setOpen(false)
