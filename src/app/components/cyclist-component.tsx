@@ -5,12 +5,48 @@ import { CyclistMap } from "./cyclist-map";
 import { Address, SelectAdress } from "./select-adress";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { GeolocationCoords, getGeolocation } from "@/lib/utils";
 
+// Usage example
+type SuccessfulGeolocation = {
+    isError: false;
+    coords: GeolocationCoords;
+}
+type UnsuccessfulGeolocation = {
+    isError: true;
+    // chords: never;
+}
+
+async function fetchLocation(): Promise<SuccessfulGeolocation | UnsuccessfulGeolocation> {
+    try {
+        const coords = await getGeolocation();
+        console.log('Current Coordinates:', coords);
+        return { isError: false, coords };
+    } catch (error) {
+        console.error(error);
+        return { isError: true };
+    }
+}
 
 export function CyclistComponent() {
 
+
+    // Call the usage example function
+
+
+
+
     const [selectedTo, setSelectedTo] = useState<Address>()
     const [selectedFrom, setSelectedFrom] = useState<Address>()
+
+    const onClickGo = async () => {
+        const resp = await fetchLocation()
+        if (resp.isError) {
+            console.log('Error fetching location');
+        } else if (resp.coords) {
+            console.log('Coordinates fetched:', resp.coords);
+        }
+    }
 
     return (<div>
 
@@ -24,7 +60,7 @@ export function CyclistComponent() {
 
                 <SelectAdress onSelect={setSelectedFrom}></SelectAdress>
                 <SelectAdress onSelect={setSelectedTo}></SelectAdress>
-                <Button className="max-w-[250px]">Go</Button>
+                <Button onClick={onClickGo} className="max-w-[250px]">Go</Button>
             </div>
         </div >
 
