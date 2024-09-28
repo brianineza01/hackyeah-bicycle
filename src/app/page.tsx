@@ -1,15 +1,31 @@
-import { Input } from "@/components/ui/input";
-import Image from "next/image";
-import { SelectAdress } from "./components/select-adress";
-import { Label } from "@/components/ui/label";
-import { CyclistMap } from "./components/cyclist-map";
-import { CyclistComponent } from "./components/cyclist-component";
+
+import { CyclistComponent } from "../components/feature/cyclist-component";
 
 export default function Home() {
   return (
     <div>
-      <CyclistComponent />
-
+      <main>
+        <CyclistComponent />
+      </main>
+      <footer></footer>
     </div>
   );
 }
+
+// import dynamic from 'next/dynamic'
+
+// // Import your component dynamically and disable SSR
+// const CyclistComponentNoSSR = dynamic(
+//   () => import('../components/feature/cyclist-component').then((mod) => mod.CyclistComponent),
+//   { ssr: false }
+// );
+
+
+// export default function Home() {
+//   return (
+//     <div>
+//       <CyclistComponentNoSSR />
+
+//     </div>
+//   );
+// }
