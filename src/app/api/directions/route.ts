@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { encode } from "@here/flexpolyline";
+import { decodePolyline } from "../../../lib/utils";
 
 export const POST = async (request: NextRequest) => {
   const { origin, destination } = await request.json();
@@ -41,8 +43,6 @@ export const POST = async (request: NextRequest) => {
       .map((response) => response.value.json())
   );
 
-  console.log(data);
-
   const routes = data.reduce(
     (acc, route) => [...acc, ...route.routes],
     [] as any[]
@@ -62,7 +62,51 @@ export const POST = async (request: NextRequest) => {
     return acc;
   }, [] as any[]);
 
+  const polyline = decodePolyline(routesWithNoDuplicates[0].geometry, false);
+
+  const polylineChunks = [];
+  for (let i = 0; i < polyline.length; i += 300) {
+    polylineChunks.push(polyline.slice(i, i + 300));
+  }
+
+  const flowPromises = polylineChunks.map(async (chunk) => {
+    const encodedPolyline = encode({
+      polyline: chunk,
+    });
+
+    return await getFlow(encodedPolyline);
+  });
+
+  const flowResults = await Promise.allSettled(flowPromises);
+  const flow = flowResults
+    .filter((pResult) => pResult.status === "fulfilled")
+    .map((pResult) => pResult.value)
+    .flat();
+
   return NextResponse.json({
     routes: routesWithNoDuplicates,
+    flow,
   });
+};
+
+const getFlow = async (path: string) => {
+  const response = await fetch(`https://data.traffic.hereapi.com/v7/flow?&}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.HERE_TOKEN_KEY}`,
+    },
+    body: JSON.stringify({
+      locationReferencing: "olr",
+      in: {
+        type: "corridor",
+        corridor: path,
+        radius: 100,
+      },
+    }),
+  });
+
+  const data = await response.json();
+  console.log(data);
+  return data;
 };
