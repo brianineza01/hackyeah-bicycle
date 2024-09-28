@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Bike, Flame, Zap } from "lucide-react"
 
 export default function AccountPage() {
   return (
@@ -19,6 +20,34 @@ export default function AccountPage() {
         <h1 className="text-2xl font-bold">John Doe</h1>
         <p className="text-gray-500">@johndoe</p>
       </div>
+
+      <Card>
+        <CardContent className="p-6">
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="flex flex-col items-center">
+              <div className="mb-2 p-2 bg-blue-100 rounded-full">
+                <Bike className="w-6 h-6 text-blue-600" />
+              </div>
+              <p className="text-sm font-bold">13 km</p>
+              <p className="text-sm text-gray-500">Total Distance</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="mb-2 p-2 bg-green-100 rounded-full">
+                <Zap className="w-6 h-6 text-green-600" />
+              </div>
+              <p className="text-sm font-bold">15 days</p>
+              <p className="text-sm text-gray-500">Current Streak</p>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="mb-2 p-2 bg-orange-100 rounded-full">
+                <Flame className="w-6 h-6 text-orange-600" />
+              </div>
+              <p className="text-sm font-bold">996 kcal</p>
+              <p className="text-sm text-gray-500">Calories Burned</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
