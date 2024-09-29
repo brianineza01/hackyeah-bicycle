@@ -101,12 +101,12 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                             </div>
                         </div>
 
-                        <div className='mt-3'>
+                        {/* <div className='mt-3'>
                             <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">
                                 Address
                             </label>
                             <SelectAdress onSelect={setAddress}></SelectAdress>
-                        </div>
+                        </div> */}
 
 
                         <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
