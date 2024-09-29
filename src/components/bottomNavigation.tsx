@@ -13,7 +13,7 @@ const BottomNavigation: React.FC = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 bg-[#4caf50] hover:bg-[#388e3c] transition-colors duration-200">
       <div className="flex justify-around items-center h-16">
         {navItems.map((item) => (
           <button
@@ -23,7 +23,7 @@ const BottomNavigation: React.FC = () => {
               'flex flex-col items-center justify-center w-full h-full transition-colors',
               pathname === item.path
                 ? 'text-primary'
-                : 'text-muted-foreground hover:text-primary'
+                : 'text-white hover:text-primary'
             )}
           >
             <item.icon className="w-6 h-6 mb-1" />
