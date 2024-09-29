@@ -112,7 +112,7 @@ export function CyclistComponent() {
                 <CyclistComponentNoSSR />
             </div>
             {/* upper controller / input */}
-            <div className="z-20 absolute top-0 left-0 right-0 bg-white shadow-md rounded-md p-4 m-2">
+            <div className="z-20 absolute top-0 left-0 right-0 bg-white shadow-md rounded-md p-4 m-2 md:w-1/2 lg:w-1/3 xl:w-1/4">
                 <div className="flex flex-col gap-4">
                     <SelectAdress onSelect={setSelectedFrom}></SelectAdress>
                     <SelectAdress onSelect={setSelectedTo}></SelectAdress>
