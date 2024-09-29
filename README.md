@@ -14,7 +14,7 @@ To get started with the CycleYeah project, follow these steps:
 2. Clone this repository to your local machine.
 3. Navigate to the project directory and run:
 
-```bash
+```
 pnpm install
 pnpm dev
 ```
