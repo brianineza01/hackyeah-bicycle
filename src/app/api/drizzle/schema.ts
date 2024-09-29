@@ -17,11 +17,6 @@ export const ReportsTable = pgTable(
     longitude: text('longitude').notNull(),
     latitude: text('latitude').notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
-  },
-  (reports) => {
-    return {
-      uniqueIdx: uniqueIndex('unique_idx').on(reports.email),
-    };
-  },
+  }
 );
 

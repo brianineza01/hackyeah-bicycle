@@ -70,8 +70,7 @@ export function CyclistComponent() {
     const [selectedTo, setSelectedTo] = useState<Address>();
     const [selectedFrom, setSelectedFrom] = useState<Address>();
     const [open, setOpen] = useState(false);
-    const [address, setAddress] = useState('');
-    const [email, setEmail] = useState('');
+    const [address, setAddress] = useState({});
 
     const handleClose = () => {
         setOpen(false);
@@ -89,13 +88,6 @@ export function CyclistComponent() {
             }
         }
     };
-    const handleAddress = (e) => {
-        setAddress(e.target.value);
-    }
-    const handleEmail = (e) => {
-        setEmail(e.target.value)
-    }
-
     const handleOpen = async () => {
         setOpen(true);
         if (typeof window !== 'undefined') {
@@ -105,15 +97,7 @@ export function CyclistComponent() {
             if (resp.isError) {
                 console.log('Error fetching location');
             } else if (resp.coords) {
-                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${resp.coords.latitude}&lon=${resp.coords.longitude}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        const words = data.display_name.split(' ');
-                        const firstTwoWords = words.slice(0, 2).join(' ');
-                        setAddress(firstTwoWords);
-                        console.log(firstTwoWords);
-                    })
-                    .catch(error => console.error('Error:', error));
+                setAddress(resp.coords);
                 console.log('Coordinates fetched:', resp.coords);
             }
         }
@@ -150,7 +134,7 @@ export function CyclistComponent() {
                         </svg>
                     </button>
                 </span>
-                <ReportModel open={open} handleClose={handleClose} setAddress={setAddress} handleEmail={handleEmail} email={email} />
+                <ReportModel open={open} handleClose={handleClose} address={address}  />
             </div>
         </div>
     );

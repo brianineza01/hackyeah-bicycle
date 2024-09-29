@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import { Label, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import { Address, SelectAdress } from "./select-adress";
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const issue = [
     {
@@ -28,8 +28,35 @@ const issue = [
     }
 ]
 
-export default function ReportModel({ open, handleClose, setAddress, handleEmail, email }) {
-    const [selected, setSelected] = useState(issue[0])
+export default function ReportModel({ open, handleClose, address }) {
+    const [selected, setSelected] = useState(issue[0]);
+
+    const onSubmit = async () => {
+         const data = {
+            latitude: address.latitude, 
+            longitude: address.longitude, 
+            issue: selected.name
+         }
+
+         const response = await fetch(
+            `api/user-report`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data)
+            }
+          );
+          if(response.status == 200){
+            toast.success("Your report has been submitted")
+          } else {
+            toast.error("Samething unxpected happened please try again")
+          }
+        //   handleClose()
+          console.log(response.status);
+    }
+
     return (
         <Dialog open={open} onClose={handleClose} className="relative z-10">
             <DialogBackdrop
@@ -43,7 +70,10 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                         className=" p-4 relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-lg data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
                     >
                         <h2 className='text-center font-bold mb-4 mt-3'>Report issue from road</h2>
-                        <Listbox value={selected} onChange={setSelected}>
+                        <div className='mb-12'>
+
+                       
+                        <Listbox value={selected} onChange={setSelected} >
                             <Label className="block text-sm font-medium leading-6 text-gray-900">Issue</Label>
                             <div className="relative mt-2">
                                 <ListboxButton className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
@@ -81,8 +111,8 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                                 </ListboxOptions>
                             </div>
                         </Listbox>
-
-
+                        </div>
+{/* 
                         <div className='mt-3'>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                                 Email address
@@ -99,7 +129,7 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                                     className="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* <div className='mt-3'>
                             <label htmlFor="address" className="block text-sm font-medium leading-6 text-gray-900">
@@ -109,10 +139,10 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                         </div> */}
 
 
-                        <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                        <div className="mb-4 bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
                             <button
                                 type="button"
-                                onClick={handleClose}
+                                onClick={onSubmit}
                                 className="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
                             >
                                 Submit
@@ -129,6 +159,7 @@ export default function ReportModel({ open, handleClose, setAddress, handleEmail
                     </DialogPanel>
                 </div>
             </div>
+            <ToastContainer autoClose={5000} position="bottom-right"  className="mb-8"/>
         </Dialog>
     )
 }
