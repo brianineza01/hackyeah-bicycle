@@ -74,6 +74,7 @@ export function CyclistComponent() {
 
     const handleClose = () => {
         setOpen(false);
+
     }
 
     const onClickGo = async () => {
@@ -90,6 +91,7 @@ export function CyclistComponent() {
     };
     const handleOpen = async () => {
         setOpen(true);
+
         if (typeof window !== 'undefined') {
             // This code only runs on the client side
             console.log(window.innerWidth);
@@ -122,16 +124,18 @@ export function CyclistComponent() {
 
             {/* lower controller */}
             <div className="z-30 absolute bottom-1/2 left-0 right-0  rounded-md p-4 m-2">
-                {/* Here we have some stuff
-                {selectedFrom?.place_id}
-                {selectedTo?.place_id} */}
-
                 {/* Wrap with <span> and use absolute positioning */}
                 <span className="absolute right-5 text-yellow-500">
-                    <button className="p-4 rounded-full bg-gray-500" onClick={() => handleOpen()}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                        </svg>
+                    <button className="p-4 rounded-full bg-gray-500" onClick={() => open ? handleClose() : handleOpen()}>
+                        {open ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                            </svg>
+                        )}
                     </button>
                 </span>
                 <ReportModel open={open} handleClose={handleClose} address={address}  />
