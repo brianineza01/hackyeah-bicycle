@@ -42,16 +42,22 @@ export const POST = async (request: NextRequest) => {
       .filter((response) => response.status === "fulfilled")
       .map((response) => response.value.json())
   );
+  console.log("data: ", data);
+  const errors = responses
+    .filter((result) => result.status === "rejected")
+    .map((result) => result.reason);
+
+  console.log("errors", errors);
 
   const routes = data.reduce(
-    (acc, route) => [...acc, ...route.routes],
+    (acc, route) => [...acc, ...(route?.routes ?? [])],
     [] as any[]
   );
 
   const routesWithNoDuplicates = routes.reduce((acc: any[], route: any) => {
     const isDuplicate = acc.some(
       (route: any) =>
-        route.distance === route.summary.distance &&
+        route.distance === route.summary.distance ||
         route.duration === route.summary.duration
     );
 
@@ -62,42 +68,22 @@ export const POST = async (request: NextRequest) => {
     return acc;
   }, [] as any[]);
 
-  const polyline = decodePolyline(routesWithNoDuplicates[0].geometry, false);
+  console.log("Routes with no duplicates", routesWithNoDuplicates);
+  const routesWithFlow = await getFlowForAllRoutes(routesWithNoDuplicates);
+  console.log("Routes with flow", routesWithFlow);
 
-  const polylineChunks = [];
-  for (let i = 0; i < polyline.length; i += 300) {
-    polylineChunks.push(polyline.slice(i, i + 300));
-  }
-
-  const flowPromises = polylineChunks.map(async (chunk) => {
-    const encodedPolyline = encode({
-      polyline: chunk,
-    });
-
-    return await getFlow(encodedPolyline);
-  });
-
-  const flowResults = await Promise.allSettled(flowPromises);
-  const flow = flowResults
-    .filter((pResult) => pResult.status === "fulfilled")
-    .map((pResult) => pResult.value)
-    .flat();
-
-  return NextResponse.json({
-    routes: routesWithNoDuplicates,
-    flow,
-  });
+  return NextResponse.json({ routes: routesWithFlow });
 };
 
 const getFlow = async (path: string) => {
-  const response = await fetch(`https://data.traffic.hereapi.com/v7/flow?&}`, {
+  const response = await fetch(`https://data.traffic.hereapi.com/v7/flow}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${process.env.HERE_TOKEN_KEY}`,
     },
     body: JSON.stringify({
-      locationReferencing: "olr",
+      locationReferencing: ["shape", "tmc"],
       in: {
         type: "corridor",
         corridor: path,
@@ -107,6 +93,49 @@ const getFlow = async (path: string) => {
   });
 
   const data = await response.json();
-  console.log(data);
   return data;
 };
+
+async function getFlowForAllRoutes(routes: any[]) {
+  const routesWithFlow = await Promise.all(
+    routes.map(async (route) => {
+      const polyline = decodePolyline(route.geometry, false);
+
+      const polylineChunks = [];
+      for (let i = 0; i < polyline.length; i += 300) {
+        polylineChunks.push(polyline.slice(i, i + 300));
+      }
+
+      const flowPromises = polylineChunks.map(async (chunk) => {
+        const encodedPolyline = encode({
+          polyline: chunk,
+        });
+
+        return await getFlow(encodedPolyline);
+      });
+
+      const flowResults = await Promise.allSettled(flowPromises);
+      console.log(
+        "flow errors ",
+        flowResults
+          .filter((pResult) => pResult.status === "rejected")
+          .map((pResult) => pResult.reason)
+      );
+      const flow = flowResults
+        .filter((pResult) => pResult.status === "fulfilled")
+        .map((pResult: any) => pResult.value)
+        .flat()
+        .reduce((acc: any, curr: any) => {
+          return [...acc, ...(curr?.results ?? [])];
+        }, []);
+
+      console.log("flow", flow);
+
+      return { flow_length: flow.length, flow, ...route };
+    })
+  );
+
+  return routesWithFlow;
+}
+
+// Usage in the POST function:

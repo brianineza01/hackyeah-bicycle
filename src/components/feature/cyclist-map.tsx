@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import {
   MapContainer,
@@ -10,6 +11,7 @@ import "leaflet/dist/leaflet.css";
 import { LatLngExpression } from "leaflet";
 import { useEffect, useState } from "react";
 import { decodePolyline } from "../../lib/utils";
+import RouteInfo from "./RouteInfo";
 
 const colors = [
   "#FF0000", // Red
@@ -37,6 +39,7 @@ export function CyclistMap({
   }[];
 }) {
   const [isMounted, setIsMounted] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState<number>(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -45,6 +48,8 @@ export function CyclistMap({
   if (!isMounted) {
     return null; // Render nothing until component is mounted
   }
+
+  console.log(selectedRoute);
 
   return (
     <MapContainer
@@ -64,15 +69,20 @@ export function CyclistMap({
       </Marker>
 
       {routes.map((route, idx) => (
-        <>
+        <div key={idx}>
           {route?.flow?.map((f: any) => (
             <>
               <Polyline
                 key={f?.id}
-                pathOptions={{ color: "black" }}
+                pathOptions={{
+                  color: selectedRoute === idx ? "#388e3c" : "grey",
+                }}
                 positions={f?.location?.shape?.links?.map(
                   (link: any) => link.points
                 )}
+                eventHandlers={{
+                  click: () => console.log("Clicked!"),
+                }}
               />
             </>
           ))}
@@ -82,8 +92,31 @@ export function CyclistMap({
             pathOptions={{ color: colors[idx] }}
             positions={decodePolyline(route.geometry, false)}
           />
-        </>
+        </div>
       ))}
+
+      {routes.length > 0 && (
+        <div
+          className="z-[500] absolute left-[5vw] top-[25vh] h-[70vh] w-[40vw]"
+          onScroll={(e) => e.stopPropagation()}
+        >
+          <RouteInfo
+            routeData={routes[selectedRoute ?? 0]}
+            setNextRoute={() =>
+              setSelectedRoute((selected: number) =>
+                selected === routes.length - 1 ? 0 : selected + 1
+              )
+            }
+            disabledNext={selectedRoute === routes.length - 1}
+            disabledPrevious={selectedRoute === 0}
+            setPreviousRoute={() =>
+              setSelectedRoute((selected: number) =>
+                selected === 0 ? routes.length - 1 : selected - 1
+              )
+            }
+          />
+        </div>
+      )}
     </MapContainer>
   );
 }
