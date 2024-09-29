@@ -3,7 +3,7 @@
 import { Address, SelectAdress } from "./select-adress";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-
+import ReportModel from "./model";
 import dynamic from 'next/dynamic'
 
 // Import your component dynamically and disable SSR
@@ -35,6 +35,7 @@ export async function getGeolocation(): Promise<GeolocationCoords> {
         if (typeof window !== 'undefined' && navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    console.log(position)
                     const { latitude, longitude } = position.coords;
                     resolve({ latitude, longitude });
                 },
@@ -68,6 +69,13 @@ async function fetchLocation(): Promise<SuccessfulGeolocation | UnsuccessfulGeol
 export function CyclistComponent() {
     const [selectedTo, setSelectedTo] = useState<Address>();
     const [selectedFrom, setSelectedFrom] = useState<Address>();
+    const [open, setOpen] = useState(false);
+    const [address, setAddress] = useState('');
+    const [email, setEmail] = useState('');
+
+    const handleClose = () => {
+        setOpen(false);
+    }
 
     const onClickGo = async () => {
         if (typeof window !== 'undefined') {
@@ -81,6 +89,35 @@ export function CyclistComponent() {
             }
         }
     };
+    const handleAddress = (e) => {
+        setAddress(e.target.value);
+    }
+    const handleEmail = (e) => {
+        setEmail(e.target.value)
+    }
+
+    const handleOpen = async () => {
+        setOpen(true);
+        if (typeof window !== 'undefined') {
+            // This code only runs on the client side
+            console.log(window.innerWidth);
+            const resp = await fetchLocation();
+            if (resp.isError) {
+                console.log('Error fetching location');
+            } else if (resp.coords) {
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${resp.coords.latitude}&lon=${resp.coords.longitude}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const words = data.display_name.split(' ');
+                        const firstTwoWords = words.slice(0, 2).join(' ');
+                        setAddress(firstTwoWords);
+                        console.log(firstTwoWords);
+                    })
+                    .catch(error => console.error('Error:', error));
+                console.log('Coordinates fetched:', resp.coords);
+            }
+        }
+    }
 
     return (
         <div>
@@ -100,10 +137,20 @@ export function CyclistComponent() {
             </div>
 
             {/* lower controller */}
-            <div className="z-30 absolute bottom-0 left-0 right-0 bg-white shadow-md rounded-md p-4 m-2">
-                Here we have some stuff
+            <div className="z-30 absolute bottom-1/2 left-0 right-0  rounded-md p-4 m-2">
+                {/* Here we have some stuff
                 {selectedFrom?.place_id}
-                {selectedTo?.place_id}
+                {selectedTo?.place_id} */}
+
+                {/* Wrap with <span> and use absolute positioning */}
+                <span className="absolute right-5 text-yellow-500">
+                    <button className="p-4 rounded-full bg-gray-500" onClick={() => handleOpen()}>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                    </button>
+                </span>
+                <ReportModel open={open} handleClose={handleClose} setAddress={setAddress} handleEmail={handleEmail} email={email} />
             </div>
         </div>
     );
